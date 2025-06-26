@@ -8,6 +8,7 @@ using static UnityEditor.Progress;
 
 public class InventoryManager : MonoBehaviour
 {
+    [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private InventoryItem itemPrefab;
     [SerializeField] private List<InventorySlot> slots;
 
@@ -17,6 +18,7 @@ public class InventoryManager : MonoBehaviour
     {
         InstanceHandler.RegisterInstance(this);
         inventoryData = new InventoryItemData[slots.Count];
+        ToggleInventory(false);
     }
 
     private void OnDestroy()
@@ -24,15 +26,54 @@ public class InventoryManager : MonoBehaviour
         InstanceHandler.UnregisterInstance<InventoryManager>();
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            bool isOpen = canvasGroup.alpha > 0;
+            ToggleInventory(!isOpen);
+        }
+    }
+
+    private void ToggleInventory(bool toggle)
+    {
+        
+        canvasGroup.alpha = toggle ? 1 : 0;
+        canvasGroup.blocksRaycasts = !toggle;
+        Cursor.lockState = toggle ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = toggle ? true : false;
+    }
+
     public void AddItem(Item item)
     {
-        if(!TryStackItem(item))
+        if (!TryStackItem(item))
             AddNewItem(item);
+       
+            
     }
 
     private bool TryStackItem(Item item)
     {
+        
+
+        for (int i = 0; i < inventoryData.Length; i++)
+        {
+            var data = inventoryData[i];
+            if (string.IsNullOrEmpty(data.itemName))
+                continue;
+            if (data.itemName!= item.ItemName)
+                continue;
+
+            data.amount++;
+            data.inventoryItem.Init(item.ItemName, item.ItemPicture, data.amount);
+            inventoryData[i] = data;
+            return true;
+        }
+
         return false;
+
+
+        
     }
 
     private void AddNewItem(Item item)
@@ -48,7 +89,7 @@ public class InventoryManager : MonoBehaviour
 
             var itemData = new InventoryItemData()
             {
-                item = item,
+                itemName = item.ItemName,
                 inventoryItem = inventoryItem,
                 amount = 1
             };
@@ -60,13 +101,24 @@ public class InventoryManager : MonoBehaviour
     }
     public void ItemMoved(InventoryItem item, InventorySlot newSlot)
     {
+        var newSlotIndex = slots.IndexOf(newSlot);
+        var oldSlotIndex = Array.FindIndex(inventoryData, x => x.inventoryItem == item);
+        if(oldSlotIndex == -1)
+        {
+            Debug.LogError($"Couldnt find item {item.name} in inventory data", this);
+            return;
+        }
 
+        var oldData = inventoryData[oldSlotIndex];
+
+        inventoryData[oldSlotIndex] = default;
+        inventoryData[newSlotIndex] = oldData;
     }
 
     [Serializable]
     public struct InventoryItemData
     {
-        public Item item;
+        public string itemName;
         public InventoryItem inventoryItem;
         public int amount;
     }

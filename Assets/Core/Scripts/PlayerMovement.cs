@@ -40,8 +40,7 @@ public class PlayerMovement : NetworkBehaviour
 
 
 
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
+        
         characterController = GetComponent<CharacterController>();
         SetShadowsOnly();
         if (playerCamera == null)
