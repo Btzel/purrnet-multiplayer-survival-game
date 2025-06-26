@@ -1,16 +1,22 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class InventoryItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
+    [SerializeField] private TMP_Text amountText;
+
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
     private Transform originalParent;
     private Canvas canvas;
+    private Image itemImage;
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
+        itemImage = GetComponent<Image>();
         canvas = GetComponentInParent<Canvas>();
     }
 
@@ -44,5 +50,11 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     {
         canvasGroup.blocksRaycasts = true;
         rectTransform.anchoredPosition = Vector2.zero;
+    }
+
+    public void Init(string itemName, Sprite itemPicture, int amount)
+    {
+        itemImage.sprite = itemPicture;
+        amountText.text = amount.ToString();
     }
 }
