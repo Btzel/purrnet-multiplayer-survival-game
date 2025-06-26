@@ -47,6 +47,8 @@ public class InteractionManager : MonoBehaviour
             return;
         }
 
+        
+
         if (currentHoveredInteractables != null && currentHoveredInteractables.Length > 0 && hit.collider.gameObject == currentHoveredInteractables[0].gameObject)
             return;
 

@@ -8,6 +8,8 @@ using static UnityEditor.Progress;
 
 public class InventoryManager : MonoBehaviour
 {
+    [SerializeField] private List<Item> allItems = new();
+
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private InventoryItem itemPrefab;
     [SerializeField] private List<InventorySlot> slots;
@@ -90,6 +92,7 @@ public class InventoryManager : MonoBehaviour
             var itemData = new InventoryItemData()
             {
                 itemName = item.ItemName,
+                itemPicture = item.ItemPicture,
                 inventoryItem = inventoryItem,
                 amount = 1
             };
@@ -115,10 +118,55 @@ public class InventoryManager : MonoBehaviour
         inventoryData[newSlotIndex] = oldData;
     }
 
+    public void DropItem(InventoryItem inventoryItem)
+    {
+        for (int i = 0; i < inventoryData.Length; i++)
+        {
+            var data = inventoryData[i];
+            if (data.inventoryItem != inventoryItem)
+                continue;
+
+            var itemToSpawn = allItems.Find(x => x.ItemName == data.itemName);
+            if (itemToSpawn == null)
+                return;
+
+            Vector3 spawnPosition = PlayerMovement.localPlayerMovement.transform.position + PlayerMovement.localPlayerMovement.transform.forward + Vector3.up;
+            var item = Instantiate(itemToSpawn, spawnPosition, Quaternion.identity);
+
+
+            DeductItem(inventoryItem);
+            break;
+        }
+    }
+
+    private void DeductItem(InventoryItem inventoryItem)
+    {
+        for (int i = 0; i < inventoryData.Length; i++)
+        {
+            var data = inventoryData[i];
+            if (data.inventoryItem != inventoryItem)
+                continue;
+
+            data.amount--;
+            if(data.amount <= 0)
+            {
+                inventoryData[i] = default;
+                slots[i].SetItem(null);
+                Destroy(inventoryItem.gameObject);
+            }
+            else
+            {
+                data.inventoryItem.Init(data.itemName, data.itemPicture, data.amount);
+                inventoryData[i] = data;
+            }
+        }
+    }
+
     [Serializable]
     public struct InventoryItemData
     {
         public string itemName;
+        public Sprite itemPicture;
         public InventoryItem inventoryItem;
         public int amount;
     }

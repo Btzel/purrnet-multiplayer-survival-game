@@ -1,9 +1,10 @@
+using PurrNet;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventoryItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
+public class InventoryItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler,IPointerClickHandler
 {
     [SerializeField] private TMP_Text amountText;
 
@@ -56,5 +57,18 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     {
         itemImage.sprite = itemPicture;
         amountText.text = amount.ToString();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Right)
+            return;
+
+        if(!InstanceHandler.TryGetInstance(out InventoryManager inventoryManager))
+        {
+            return;
+        }
+
+        inventoryManager.DropItem(this);
     }
 }

@@ -27,6 +27,7 @@ public class PlayerMovement : NetworkBehaviour
     private CharacterController characterController;
     private Vector3 velocity;
     private float verticalRotation = 0f;
+    public static PlayerMovement localPlayerMovement;
 
     protected override void OnSpawned()
     {
@@ -37,7 +38,7 @@ public class PlayerMovement : NetworkBehaviour
         if (!isOwner)
             return;
 
-
+        localPlayerMovement = this;
         playerCamera = Camera.main;
         
         characterController = GetComponent<CharacterController>();
