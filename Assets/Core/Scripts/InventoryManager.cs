@@ -39,9 +39,9 @@ public class InventoryManager : MonoBehaviour
     {
         
         canvasGroup.alpha = toggle ? 1 : 0;
-        canvasGroup.blocksRaycasts = !toggle;
+        canvasGroup.blocksRaycasts = toggle;
         Cursor.lockState = toggle ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = toggle ? true : false;
+        Cursor.visible = toggle;
     }
 
     public void AddItem(Item item)

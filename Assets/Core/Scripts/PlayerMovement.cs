@@ -15,13 +15,15 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private float groundCheckDistance = 0.2f;
 
     [Header("Look Settings")]
+    [SerializeField] private Vector3 cameraOffset;
     [SerializeField] private float lookSensitivity = 2f;
     [SerializeField] private float maxLookAngle = 80f;
 
     [Header("References")]
-    [SerializeField] private Camera playerCamera;
     [SerializeField] private Animator animator;
     [SerializeField] private List<Renderer> renderers;
+
+    private Camera playerCamera;
     private CharacterController characterController;
     private Vector3 velocity;
     private float verticalRotation = 0f;
@@ -33,16 +35,15 @@ public class PlayerMovement : NetworkBehaviour
         enabled = isOwner;
 
         if (!isOwner)
-        {
-            Destroy(playerCamera.gameObject);
             return;
-        }
 
 
-
+        playerCamera = Camera.main;
         
         characterController = GetComponent<CharacterController>();
         SetShadowsOnly();
+        playerCamera.transform.SetParent(transform);
+        playerCamera.transform.localPosition = cameraOffset;
         if (playerCamera == null)
         {
             enabled = false;
@@ -142,6 +143,9 @@ public class PlayerMovement : NetworkBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position + Vector3.up * 0.03f, Vector3.down * groundCheckDistance);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.TransformPoint(cameraOffset), radius: 0.1f);
     }
 #endif
 }
